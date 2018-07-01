@@ -13,7 +13,7 @@ if module_path not in sys.path:
 
 from MersennePrime import MersennePrime
 
-class TestMersennePrimeListCommand(unittest.TestCase):
+class TestMersennePrimeSubCommand(unittest.TestCase):
     def setUp(self):
         self.held, sys.stdout = sys.stdout, StringIO()
     
