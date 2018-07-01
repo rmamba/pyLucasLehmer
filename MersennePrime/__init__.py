@@ -24,6 +24,17 @@ import time
 
 
 class MersennePrime:
+    speed = {
+        'add': 0,
+        'and': 0,
+        'mod': 0,
+        'mul': 0,
+        'smaller': 0,
+        'sub': 0,
+        'square': 0,
+        'total': 0
+    }
+
     def _list(self, n):
         m = []
         v = n
@@ -34,6 +45,7 @@ class MersennePrime:
         return m
 
     def _sub(self, n, s):
+        t = time.time()
         m = n[:]
         for i in range(len(s)):
             m[i] -= s[i]
@@ -47,9 +59,11 @@ class MersennePrime:
             if len(m) == 1:
                 break
             del m[-1]
+        self.speed['sub'] += time.time() - t
         return m
 
     def _add(self, n, a):
+        t = time.time()
         m = n[:]
         while len(m) < len(a):
             m.append(0)
@@ -64,9 +78,11 @@ class MersennePrime:
             m[-1] = t[0]
             for i in range(1, len(t)):
                 m.append(t[i])
+        self.speed['add'] += time.time() - t
         return m
 
     def _and(self, n, a):
+        t = time.time()
         m = []
         l1 = n[:]
         l2 = a[:]
@@ -78,28 +94,37 @@ class MersennePrime:
             if len(m) == 1:
                 break
             del m[-1]
+        self.speed['and'] += time.time() - t
         return m
 
     def _smaller(self, n, m):
+        t = time.time()
         # return true if n<m
         if len(n) < len(m):
+            self.speed['smaller'] += time.time() - t
             return True
         if len(n) > len(m):
+            self.speed['smaller'] += time.time() - t
             return False
         # else len n==m
         i = len(n) - 1
         while i >= 0:
             if n[i] < m[i]:
+                self.speed['smaller'] += time.time() - t
                 return True
             if n[i] > m[i]:
+                self.speed['smaller'] += time.time() - t
                 return False
             i -= 1
         for i in range(len(n)):
             if n[i] != m[i]:
+                self.speed['smaller'] += time.time() - t
                 return True
+        self.speed['smaller'] += time.time() - t
         return False
 
     def _mod(self, n, m):
+        t = time.time()
         r = n[:]
         while not self._smaller(r, m):
             s = m[:]
@@ -111,9 +136,11 @@ class MersennePrime:
                 del s[0]
             while not self._smaller(r, s):
                 r = self._sub(r, s)
+        self.speed['mod'] += time.time() - t
         return r
 
     def _mul(self, n, m):
+        t = time.time()
         r = n[:]
         w = n[:]
         q = m[:]
@@ -138,15 +165,16 @@ class MersennePrime:
                 r[i] -= 256
                 r[i+1] += 1
         if r[-1] > 255:
-            t = self._list(r[-1])
-            r[-1] = t[0]
-            for i in range(1, len(t)):
-                r.append(t[i])
+            u = self._list(r[-1])
+            r[-1] = u[0]
+            for i in range(1, len(u)):
+                r.append(u[i])
+        self.speed['mul'] += time.time() - t
         return r
 
-    def _div(self, n, d):
-        r = n[:]
-        return r
+    # def _div(self, n, d):
+    #     r = n[:]
+    #     return r
 
     def _square(self, n):
         return self._mul(n[:], n[:])
@@ -161,7 +189,26 @@ class MersennePrime:
         self._m = m
         # P = 2 ** m - 1
         self._P = self._sub(self._list(2 ** m), [1])
-        self.time = None
+        self._R = []
+        self._R.append(self._square(self._P))
+        self._R.append(self._P);
+        p = self._P[:]
+        p.insert(0, 0)
+        while self._smaller(p, self._R[0]):
+            self._R.insert(1, p)
+            p = p[:]
+            p.insert(0, 0)
+
+        self.speed = {
+            'add': 0,
+            'and': 0,
+            'mod': 0,
+            'mul': 0,
+            'smaller': 0,
+            'sub': 0,
+            'square': 0,
+            'total': 0
+        }
     
     def isPrime(self):
         t = time.time()
@@ -170,7 +217,7 @@ class MersennePrime:
             mod = self._square(mod)
             mod = self._sub(mod, [2])
             mod = self._mod(mod, self._P)
-        self.time = time.time() - t
+        self.speed['total'] = time.time() - t
         if mod == [0]:
             return True
         return False

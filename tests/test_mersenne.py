@@ -58,6 +58,6 @@ class TestMersenneIsPrimeCommand(unittest.TestCase):
     # def test_medium(self):
 
 
-# mp = MersennePrime(33)
-# print(mp.isPrime())
-# print(mp.time)
+mp = MersennePrime(89)
+print(mp.isPrime())
+print(mp.speed)
