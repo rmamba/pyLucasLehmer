@@ -38,13 +38,13 @@ class TestMersenneIsPrimeCommand(unittest.TestCase):
         self.assertTrue(mp.isPrime())
         self.assertEqual(mp._P, [255, 255, 1])
 
-        # mp = MersennePrime(19)
-        # self.assertTrue(mp.isPrime())
-        # self.assertEqual(mp._P, [255, 255, 7])
+        mp = MersennePrime(19)
+        self.assertTrue(mp.isPrime())
+        self.assertEqual(mp._P, [255, 255, 7])
 
-        # mp = MersennePrime(31)
-        # self.assertTrue(mp.isPrime())
-        # self.assertEqual(mp._P, [255, 255, 255, 255])
+        mp = MersennePrime(31)
+        self.assertTrue(mp.isPrime())
+        self.assertEqual(mp._P, [255, 255, 255, 127])
 
     def test_false(self):
         mp = MersennePrime(9)
@@ -58,5 +58,6 @@ class TestMersenneIsPrimeCommand(unittest.TestCase):
     # def test_medium(self):
 
 
-mp = MersennePrime(17)
-print(mp.isPrime())
+# mp = MersennePrime(33)
+# print(mp.isPrime())
+# print(mp.time)

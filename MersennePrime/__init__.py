@@ -89,6 +89,8 @@ class MersennePrime:
         # else len n==m
         i = len(n) - 1
         while i >= 0:
+            if n[i] < m[i]:
+                return True
             if n[i] > m[i]:
                 return False
             i -= 1
@@ -100,7 +102,15 @@ class MersennePrime:
     def _mod(self, n, m):
         r = n[:]
         while not self._smaller(r, m):
-            r = self._sub(r, m)
+            s = m[:]
+            bAdded = False
+            while not self._smaller(r, s):
+                s.insert(0, 0)
+                bAdded = True
+            if bAdded:
+                del s[0]
+            while not self._smaller(r, s):
+                r = self._sub(r, s)
         return r
 
     def _mul(self, n, m):
@@ -132,6 +142,10 @@ class MersennePrime:
             r[-1] = t[0]
             for i in range(1, len(t)):
                 r.append(t[i])
+        return r
+
+    def _div(self, n, d):
+        r = n[:]
         return r
 
     def _square(self, n):
