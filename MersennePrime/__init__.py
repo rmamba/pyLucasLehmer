@@ -20,6 +20,7 @@ Further information is available in the bundled documentation, and from
 """
 
 import math
+import time
 
 
 class MersennePrime:
@@ -28,7 +29,7 @@ class MersennePrime:
         v = n
         m.append(v % 256)
         while v>255:
-            v = math.floor(v / 256)
+            v = int(math.floor(v / 256))
             m.append(v % 256)
         return m
 
@@ -88,15 +89,16 @@ class MersennePrime:
         # else len n==m
         i = len(n) - 1
         while i >= 0:
-            if n[i] < m[i]:
-                return True
+            if n[i] > m[i]:
+                return False
             i -= 1
+        for i in range(len(n)):
+            if n[i] != m[i]:
+                return True
         return False
 
     def _mod(self, n, m):
         r = n[:]
-        if self._smaller(r, m):
-            return r
         while not self._smaller(r, m):
             r = self._sub(r, m)
         return r
@@ -117,12 +119,10 @@ class MersennePrime:
             for j in range(len(q)):
                 r[i+j] += w[i] * q[j]
             r.append(0)
-
         while r[-1] == 0:
             if len(r) == 1:
                 break
             del r[-1]
-        
         for i in range(len(r)-1):
             while r[i] > 255:
                 r[i] -= 256
@@ -132,7 +132,6 @@ class MersennePrime:
             r[-1] = t[0]
             for i in range(1, len(t)):
                 r.append(t[i])
-        
         return r
 
     def _square(self, n):
@@ -147,14 +146,17 @@ class MersennePrime:
         # raise Esxception('No time wasters please. I can only accept prime numbers.')
         self._m = m
         # P = 2 ** m - 1
-        self._P = self._list(m)
+        self._P = self._sub(self._list(2 ** m), [1])
+        self.time = None
     
     def isPrime(self):
+        t = time.time()
         mod = [4]
-        for i in range(self._m - 2):
+        for _ in range(self._m - 2):
             mod = self._square(mod)
-            mod = self._sub(mod, 2)
-            mod = self._mod(mod)
-        if mod == 0:
+            mod = self._sub(mod, [2])
+            mod = self._mod(mod, self._P)
+        self.time = time.time() - t
+        if mod == [0]:
             return True
         return False
