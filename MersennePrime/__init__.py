@@ -126,16 +126,9 @@ class MersennePrime:
     def _mod(self, n, m):
         t = time.time()
         r = n[:]
-        while not self._smaller(r, m):
-            s = m[:]
-            bAdded = False
-            while not self._smaller(r, s):
-                s.insert(0, 0)
-                bAdded = True
-            if bAdded:
-                del s[0]
-            while not self._smaller(r, s):
-                r = self._sub(r, s)
+        for i in range(len(self._R)):
+            while not self._smaller(r, self._R[i]):
+                r = self._sub(r, self._R[i])
         self.speed['mod'] += time.time() - t
         return r
 
@@ -161,9 +154,11 @@ class MersennePrime:
                 break
             del r[-1]
         for i in range(len(r)-1):
-            while r[i] > 255:
-                r[i] -= 256
-                r[i+1] += 1
+            # while r[i] > 255:
+            #     r[i] -= 256
+            #     r[i+1] += 1
+            r[i+1] += int(math.floor(r[i] / 256))
+            r[i] %= 256
         if r[-1] > 255:
             u = self._list(r[-1])
             r[-1] = u[0]
@@ -179,7 +174,7 @@ class MersennePrime:
     def _square(self, n):
         return self._mul(n[:], n[:])
 
-    def __init__(self, m):
+    def __init__(self, m, debug=False):
         if m<2:
             raise Exception('Number should be bigger than 2.')
         if m%2 != 1:
@@ -196,9 +191,9 @@ class MersennePrime:
         p.insert(0, 0)
         while self._smaller(p, self._R[0]):
             self._R.insert(1, p)
-            p = p[:]
-            p.insert(0, 0)
+            p = self._mul(p, [2])
 
+        self.debug = debug
         self.speed = {
             'add': 0,
             'and': 0,
@@ -213,10 +208,13 @@ class MersennePrime:
     def isPrime(self):
         t = time.time()
         mod = [4]
-        for _ in range(self._m - 2):
+        for i in range(self._m - 2):
             mod = self._square(mod)
             mod = self._sub(mod, [2])
             mod = self._mod(mod, self._P)
+            if self.debug:
+                print('{}/{}: {}'.format(i, self._m-2, mod))
+                print
         self.speed['total'] = time.time() - t
         if mod == [0]:
             return True
