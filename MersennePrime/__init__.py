@@ -44,16 +44,33 @@ class MersennePrime:
             m.append(v % 256)
         return m
 
-    def _sub(self, n, s):
+    def _sub(self, n, s, p=0):
         t = time.time()
+        z = []
+        # if self.debug:
+        # print('\t{}/{}'.format(len(n), len(s)))
         m = n[:]
-        for i in range(len(s)):
+        for i in range(p, len(s)):
             m[i] -= s[i]
-        for i in range(len(m)-1):
+        #     if m[i] < 0:
+        #         z.append(i)
+        # if len(z) > 0 :
+        #     z.append(len(m)-1)
+        #     for i in range(len(z)-1):
+        #         for j in range(z[i], z[i+1]):
+        #             m[j] += 256
+        #             m[j+1] -= 1
+        #             if m[j+1] >= 0:
+        #                 j = z[-1]
+        for i in range(p, len(m)-1):
             while m[i] < 0:
                 m[i] += 256
                 m[i+1] -= 1
+                if m[i+1] >= 0:
+                    break
         if m[-1] < 0:
+            print(z)
+            print(m)
             raise Exception('Negative value.')
         while m[-1] == 0:
             if len(m) == 1:
@@ -128,7 +145,7 @@ class MersennePrime:
         r = n[:]
         for i in range(len(self._R)):
             while not self._smaller(r, self._R[i]):
-                r = self._sub(r, self._R[i])
+                r = self._sub(r, self._R[i], self._Z[i])
         self.speed['mod'] += time.time() - t
         return r
 
@@ -154,9 +171,6 @@ class MersennePrime:
                 break
             del r[-1]
         for i in range(len(r)-1):
-            # while r[i] > 255:
-            #     r[i] -= 256
-            #     r[i+1] += 1
             r[i+1] += int(math.floor(r[i] / 256))
             r[i] %= 256
         if r[-1] > 255:
@@ -174,6 +188,14 @@ class MersennePrime:
     def _square(self, n):
         return self._mul(n[:], n[:])
 
+    def _zero(self, n):
+        pos = 0
+        for i in range(len(n)):
+            if n[i] != 0:
+                break
+            pos += 1
+        return pos
+
     def __init__(self, m, debug=False):
         if m<2:
             raise Exception('Number should be bigger than 2.')
@@ -185,12 +207,17 @@ class MersennePrime:
         # P = 2 ** m - 1
         self._P = self._sub(self._list(2 ** m), [1])
         self._R = []
-        self._R.append(self._square(self._P))
-        self._R.append(self._P);
+        self._Z = []
+        t = self._square(self._P)
+        self._R.append(t)
+        self._Z.append(self._zero(t))
+        self._R.append(self._P)
+        self._Z.append(0)
         p = self._P[:]
         p.insert(0, 0)
         while self._smaller(p, self._R[0]):
             self._R.insert(1, p)
+            self._Z.insert(1, self._zero(p))
             p = self._mul(p, [2])
 
         self.debug = debug
@@ -213,7 +240,7 @@ class MersennePrime:
             mod = self._sub(mod, [2])
             mod = self._mod(mod, self._P)
             if self.debug:
-                print('{}/{}: {}'.format(i, self._m-2, mod))
+                print('{}/{}: {}'.format(i, self._m-3, mod))
                 print
         self.speed['total'] = time.time() - t
         if mod == [0]:
