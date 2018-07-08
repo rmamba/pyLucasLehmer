@@ -22,26 +22,38 @@ Further information is available in the bundled documentation, and from
 import math
 import time
 
-
 class MersennePrime:
     speed = {
         'add': 0,
         'and': 0,
         'mod': 0,
+        'mod2n': 0,
         'mul': 0,
         'smaller': 0,
         'sub': 0,
         'square': 0,
-        'total': 0
+        'total': 0,
+        'list': 0,
+        'div2n': 0
     }
 
+    def _remove0s(self, n):
+        r = n[:]
+        while r[-1] == 0:
+            if len(r) == 1:
+                break
+            del r[-1]
+        return r
+
     def _list(self, n):
+        t = time.time()
         m = []
         v = n
         m.append(v % 256)
         while v>255:
             v = int(math.floor(v / 256))
             m.append(v % 256)
+        self.speed['list'] += time.time() - t
         return m
 
     def _sub(self, n, s, p=0):
@@ -72,10 +84,7 @@ class MersennePrime:
             print(z)
             print(m)
             raise Exception('Negative value.')
-        while m[-1] == 0:
-            if len(m) == 1:
-                break
-            del m[-1]
+        m = self._remove0s(m)
         self.speed['sub'] += time.time() - t
         return m
 
@@ -91,28 +100,26 @@ class MersennePrime:
                 m[i] -= 256
                 m[i+1] += 1
         if m[-1] > 255:
-            t = self._list(m[-1])
-            m[-1] = t[0]
-            for i in range(1, len(t)):
-                m.append(t[i])
+            l = self._list(m[-1])
+            m[-1] = l[0]
+            for i in range(1, len(l)):
+                m.append(l[i])
         self.speed['add'] += time.time() - t
         return m
 
     def _and(self, n, a):
         t = time.time()
-        m = []
-        l1 = n[:]
-        l2 = a[:]
-        while len(l1) < len(l2):
-            l1.append(0)
-        for i in range(len(l2)):
-            m.append(l1[i] & l2[i])
-        while m[-1] == 0:
-            if len(m) == 1:
-                break
-            del m[-1]
+        if len(a)<=len(n):
+            r = n[0:len(a)]
+            q = a[:]
+        else:
+            r = a[0:len(n)]
+            q = n[:]
+        for i in range(len(q)):
+            r[i] &= q[i]
+        r = self._remove0s(r)
         self.speed['and'] += time.time() - t
-        return m
+        return r
 
     def _smaller(self, n, m):
         t = time.time()
@@ -143,12 +150,27 @@ class MersennePrime:
     def _mod(self, n, m):
         t = time.time()
         r = n[:]
+        if len(n)<len(m):
+            self.speed['mod'] += time.time() - t
+            return r
+        if self._smaller(n, m):
+            self.speed['mod'] += time.time() - t
+            return r
         for i in range(len(self._R)):
             while not self._smaller(r, self._R[i]):
                 r = self._sub(r, self._R[i], self._Z[i])
         self.speed['mod'] += time.time() - t
         return r
 
+    def _mod2n(self, n, m1, m2):
+        t = time.time()
+        r = self._and(n, m1)
+        q = self._div2n(n, m2)
+        r = self._add(r, q)
+        r = self._mod(r, m1)
+        self.speed['mod2n'] += time.time() - t
+        return r
+    
     def _mul(self, n, m):
         t = time.time()
         r = n[:]
@@ -171,6 +193,7 @@ class MersennePrime:
                 break
             del r[-1]
         for i in range(len(r)-1):
+            # if r[i]>255:
             r[i+1] += int(math.floor(r[i] / 256))
             r[i] %= 256
         if r[-1] > 255:
@@ -183,7 +206,25 @@ class MersennePrime:
 
     # def _div(self, n, d):
     #     r = n[:]
+    #     if self._smaller(n, d):
+    #         return n[:]
     #     return r
+
+    def _div2n(self, n, d):
+        t = time.time()
+        if len(n)<len(d):
+            self.speed['div2n'] += time.time() - t
+            return [0]
+        r = n[:]
+        q = d[:]
+        p = self._zero(d)
+        for i in range(p):
+            del r[0]
+            del q[0]
+        if self._smaller(n, d):
+            return n[:]
+        self.speed['div2n'] += time.time() - t
+        return r
 
     def _square(self, n):
         return self._mul(n[:], n[:])
@@ -225,11 +266,14 @@ class MersennePrime:
             'add': 0,
             'and': 0,
             'mod': 0,
+            'mod2n': 0,
             'mul': 0,
             'smaller': 0,
             'sub': 0,
             'square': 0,
-            'total': 0
+            'total': 0,
+            'list': 0,
+            'div2n': 0
         }
     
     def isPrime(self):

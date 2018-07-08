@@ -57,7 +57,32 @@ class TestMersenneIsPrimeCommand(unittest.TestCase):
 
     # def test_medium(self):
 
-
-mp = MersennePrime(89)
-print(mp.isPrime())
-print(mp.speed)
+if __name__ == "__main__":
+    # {
+    #     'and': 0, 
+    #     'add': 0, 
+    #     'smaller': 6.139833450317383, 
+    #     'square': 0, 
+    #     'sub': 279.0928645133972, 
+    #     'mul': 1321.333925485611, 
+    #     'total': 1615.8498299121857, 
+    #     'mod': 294.17711067199707
+    # }
+    debug=False
+    # mp = MersennePrime(17, debug=debug)
+    # mp = MersennePrime(19, debug=debug)
+    # mp = MersennePrime(31, debug=debug)
+    # mp = MersennePrime(61, debug=debug)
+    # mp = MersennePrime(89, debug=debug)
+    # mp = MersennePrime(107, debug=debug)
+    mp = MersennePrime(127, debug=debug)
+    # mp = MersennePrime(521, debug=debug)
+    # mp = MersennePrime(607, debug=debug)
+    # mp = MersennePrime(1279, debug=debug)
+    print(mp.isPrime())
+    print(mp.speed)
+    # print mp._and([255, 15], [100, 100]), [100, 4]
+    # print mp._and([100, 100], [255, 15]), [100, 4]
+    # print mp._and([255, 15], [1, 1]), [1, 1]
+    # print mp._and([255, 15], [1]), [1]
+    # print mp._and([255, 15], [0, 0, 1]), [0]

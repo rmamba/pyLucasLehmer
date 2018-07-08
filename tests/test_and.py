@@ -39,4 +39,5 @@ class TestMersennePrimeAndCommand(unittest.TestCase):
         mp = MersennePrime(3)
         self.assertEqual(mp._and([255, 255, 255, 15], [1]), [1])
         self.assertEqual(mp._and([0, 255, 255, 15], [255, 1]), [0, 1])
+        self.assertEqual(mp._and([255, 1], [0, 255, 255, 15]), [0, 1])
         self.assertEqual(mp._and([255, 255, 255, 255], [0, 0, 0, 0, 1]), [0])
